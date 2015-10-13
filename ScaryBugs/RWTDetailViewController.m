@@ -15,6 +15,8 @@
 
 @interface RWTDetailViewController ()
 - (void)configureView;
+
+@property (strong, nonatomic) UIActionSheet *attachmentMenuSheet;
 @end
 
 @implementation RWTDetailViewController
@@ -84,35 +86,70 @@
   // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)addPictureTapped:(id)sender {
-  if (self.picker == nil) {
+- (void)takePhoto {
+  if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     
-    // 1) Show status
-    [SVProgressHUD showWithStatus:@"Loading picker..."];
+    UIAlertView *myAlertView = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                          message:@"Device has no camera"
+                                                         delegate:nil
+                                                cancelButtonTitle:@"OK"
+                                                otherButtonTitles: nil];
     
-    // 2) Get a concurrent queue form the system
-    dispatch_queue_t concurrentQueue =
-    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    
-    // 3) Load picker in background
-    dispatch_async(concurrentQueue, ^{
-      
-      self.picker = [[UIImagePickerController alloc] init];
-      self.picker.delegate = self;
-      self.picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-      self.picker.allowsEditing = NO;
-      
-      // 4) Present picker in main thread
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [self presentViewController:_picker animated:YES completion:nil];
-        [SVProgressHUD dismiss];
-      });
-      
-    });
-    
-  }  else {
-    [self presentViewController:_picker animated:YES completion:nil];
+    [myAlertView show];
+    return;
   }
+  
+  if (self.picker == nil) {
+    _picker = [[UIImagePickerController alloc] init];
+    _picker.delegate = self;
+    _picker.allowsEditing = YES;
+  }
+  
+  _picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+  [self presentViewController:_picker animated:YES completion:NULL];
+}
+
+- (void)selectPhoto {
+  if (self.picker == nil) {
+    _picker = [[UIImagePickerController alloc] init];
+    _picker.delegate = self;
+    _picker.allowsEditing = YES;
+  }
+  
+  _picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+  [self presentViewController:_picker animated:YES completion:NULL];
+}
+
+-(void)attachmentActionSheet {
+  
+  self.attachmentMenuSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                     delegate:self
+                                            cancelButtonTitle:@"Cancel"
+                                       destructiveButtonTitle:nil
+                                            otherButtonTitles:@"Take Photo", @"Pick Photo", nil];
+  
+  [self.attachmentMenuSheet showInView: self.view];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex: (NSInteger)buttonIndex {
+  if (actionSheet == _attachmentMenuSheet) {
+    NSLog(@"Button %ld", buttonIndex);
+    switch (buttonIndex) {
+      case 0:
+        [self takePhoto];
+        break;
+        
+      case 1:
+        [self selectPhoto];
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+- (IBAction)addPictureTapped:(id)sender {
+  [self attachmentActionSheet];
 }
 
 #pragma mark UIImagePickerControllerDelegate
