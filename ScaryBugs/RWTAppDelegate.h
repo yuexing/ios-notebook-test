@@ -10,6 +10,14 @@
 
 @interface RWTAppDelegate : UIResponder <UIApplicationDelegate>
 
++ (NSString*) appDirectory;
+
++ (NSString*) getFullPath: (NSString*) path;
+
++ (RWTAppDelegate*) shared_instance;
+
+- (void) sortBugs;
+
 @property (strong, nonatomic) UIWindow *window;
 
 @end

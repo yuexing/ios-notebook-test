@@ -12,10 +12,16 @@
 
 @interface RWTScaryBugDoc : NSObject
 
-@property (strong) RWTScaryBugData *data;
-@property (strong) UIImage *thumbImage;
-@property (strong) UIImage *fullImage;
+@property (strong, readonly) UIImage *thumbImage;
+@property (strong, readonly) UIImage *fullImage;
 
-- (id)initWithTitle:(NSString*)title rating:(float)rating thumbImage:(UIImage *)thumbImage fullImage:(UIImage *)fullImage;
+@property (strong) NSString *title;
+@property (assign) int rating;
+
+@property (strong) NSString *imagePath;
+
+- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath;
+
+- (NSComparisonResult)compare:(RWTScaryBugDoc *)otherObject;
 
 @end
