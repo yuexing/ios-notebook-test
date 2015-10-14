@@ -37,17 +37,8 @@
 
 - (void)configureView
 {
-  // Update the user interface for the detail item.
-  self.rateView.notSelectedImage = [UIImage imageNamed:@"shockedface2_empty.png"];
-  self.rateView.halfSelectedImage = [UIImage imageNamed:@"shockedface2_half.png"];
-  self.rateView.fullSelectedImage = [UIImage imageNamed:@"shockedface2_full.png"];
-  self.rateView.editable = YES;
-  self.rateView.maxRating = 5;
-  self.rateView.delegate = self;
-  
   if (self.detailItem) {
     self.titleField.text = self.detailItem.title;
-    self.rateView.rating = self.detailItem.rating;
     self.imageView.image = [self.detailItem fullImage];
   }
 }
@@ -65,12 +56,6 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
   [textField resignFirstResponder];
   return YES;
-}
-
-#pragma mark RWTRateViewDelegate
-
-- (void)rateView:(RWTRateView *)rateView ratingDidChange:(float)rating {
-  self.detailItem.rating = rating;
 }
 
 - (void)viewDidLoad

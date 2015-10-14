@@ -50,7 +50,7 @@
   
   if(imagePath != nil) {
     _fullImage = [UIImage imageNamed:[RWTAppDelegate getFullPath:  _imagePath]];
-    _thumbImage = [_fullImage makeThumbnailOfSize:CGSizeMake(50,50)];
+    _thumbImage = [_fullImage makeThumbnailOfSize:CGSizeMake(70,70)];
   }
 }
 

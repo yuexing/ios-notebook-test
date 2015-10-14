@@ -53,11 +53,6 @@
   return (RWTAppDelegate*)[[UIApplication sharedApplication] delegate];
 }
 
-- (void) sortBugs
-{
-  [self.m_bugs sortUsingSelector:@selector(compare:)];
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   self.m_bugs = [[NSMutableArray alloc] init];

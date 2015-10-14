@@ -16,11 +16,13 @@
 @interface RWTMasterViewController () {
   NSMutableArray *_objects;
 }
+
+@property (strong)UISearchDisplayController* searchDisplayController;
+
+@property (strong) NSArray *searchResults;
 @end
 
 @implementation RWTMasterViewController
-
-@synthesize bugs = _bugs;
 
 - (void)viewDidLoad
 {
@@ -37,12 +39,8 @@
   self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                             initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                             target:self action:@selector(addTapped:)];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-  [[RWTAppDelegate shared_instance] sortBugs];
-  [self.tableView reloadData];
+  
+  [self createSearchBar];
 }
 
 - (void)didReceiveMemoryWarning
@@ -52,6 +50,35 @@
   for(int i = 0; i < sizeof(dummy_data) / sizeof(dummy_data[0]); ++i) {
     NSLog(@"%@", @(dummy_data[i]));
   }
+}
+
+- (void)createSearchBar {
+  if (self.tableView && !self.tableView.tableHeaderView) {
+    UISearchBar *searchBar = [[UISearchBar alloc] init] ;
+    self.searchDisplayController = [[UISearchDisplayController alloc] initWithSearchBar:searchBar
+                                                                     contentsController:self];
+    self.searchDisplayController.searchResultsDelegate = self;
+    self.searchDisplayController.searchResultsDataSource = self;
+    self.searchDisplayController.delegate = self;
+    searchBar.frame = CGRectMake(0, 0, 0, 38);
+    self.tableView.tableHeaderView = searchBar;
+  }
+}
+
+- (void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope
+{
+  NSPredicate *resultPredicate = [NSPredicate predicateWithFormat:@"title contains[c] %@", searchText];
+  self.searchResults = [self.bugs filteredArrayUsingPredicate:resultPredicate];
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+  [self filterContentForSearchText:searchString
+                             scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                    objectAtIndex:[self.searchDisplayController.searchBar
+                                                   selectedScopeButtonIndex]]];
+  
+  return YES;
 }
 
 - (void)insertNewObject:(id)sender
@@ -66,6 +93,25 @@
 
 #pragma mark - Table View
 
+- (void)tableView:(UITableView *)tableView
+moveRowAtIndexPath:(NSIndexPath *)fromIndexPath
+      toIndexPath:(NSIndexPath *)toIndexPath
+{
+  // fetch the object at the row being moved
+  RWTScaryBugDoc *r = [self.bugs objectAtIndex:fromIndexPath.row];
+  
+  // remove the original from the data structure
+  [self.bugs removeObjectAtIndex:fromIndexPath.row];
+  
+  // insert the object at the target row
+  [self.bugs insertObject:r atIndex:toIndexPath.row];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return 71;
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
   return 1;
@@ -73,14 +119,31 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return _bugs.count;
+  if (tableView == self.searchDisplayController.searchResultsTableView) {
+    return [self.searchResults count];
+    
+  } else {
+    return [self.bugs count];
+  }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyBasicCell"];
+  static NSString *CellIdentifier = @"MyBasicCell";
   
-  RWTScaryBugDoc *bug = [self.bugs objectAtIndex:indexPath.row];
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+  
+  if (cell == nil) {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+  }
+  
+  RWTScaryBugDoc *bug = nil;
+  if (tableView == self.searchDisplayController.searchResultsTableView) {
+    bug = [self.searchResults objectAtIndex:indexPath.row];
+  } else {
+    bug = [self.bugs objectAtIndex:indexPath.row];
+  }
+  
   cell.textLabel.text = bug.title;
   cell.imageView.image = bug.thumbImage;
   return cell;
@@ -89,14 +152,16 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
   // Return NO if you do not want the specified item to be editable.
-  return YES;
+  return tableView == self.tableView;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  if (editingStyle == UITableViewCellEditingStyleDelete) {
-    [_bugs removeObjectAtIndex:indexPath.row];
-    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+  if (tableView == self.tableView) {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+      [_bugs removeObjectAtIndex:indexPath.row];
+      [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    }
   }
 }
 

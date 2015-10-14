@@ -88,11 +88,6 @@
                                     <outlet property="delegate" destination="Ah7-4n-0Wa" id="GMm-Md-dbp"/>
                                 </connections>
                             </textField>
-                            <view contentMode="scaleToFill" id="swI-LK-gFN" userLabel="Rate View" customClass="RWTRateView">
-                                <rect key="frame" x="20" y="458" width="280" height="90"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                            </view>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="S8w-NY-zoY">
                                 <rect key="frame" x="20" y="123" width="280" height="327"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -114,7 +109,6 @@
                     <navigationItem key="navigationItem" title="Detail" id="cra-N8-TIN"/>
                     <connections>
                         <outlet property="imageView" destination="S8w-NY-zoY" id="qhz-Vy-yt2"/>
-                        <outlet property="rateView" destination="swI-LK-gFN" id="gP5-vk-MG6"/>
                         <outlet property="titleField" destination="ato-Pf-oZG" id="zn3-Vr-5Ih"/>
                     </connections>
                 </viewController>
