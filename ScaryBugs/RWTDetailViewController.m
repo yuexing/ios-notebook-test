@@ -12,11 +12,14 @@
 #import "SVProgressHUD.h"
 
 #import "RWTAppDelegate.h"
+#import "LocationPickerController.h"
 
-@interface RWTDetailViewController ()
+@interface RWTDetailViewController () <LocationPickerControllerDelegate>
 - (void)configureView;
 
 @property (strong, nonatomic) UIActionSheet *attachmentMenuSheet;
+
+@property (strong, nonatomic) UIButton *locationPicker;
 @end
 
 @implementation RWTDetailViewController
@@ -63,6 +66,25 @@
   [super viewDidLoad];
   // Do any additional setup after loading the view, typically from a nib.
   [self configureView];
+  
+  self.locationPicker = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  [self.locationPicker addTarget:self
+             action:@selector(pickLocation)
+   forControlEvents:UIControlEventTouchUpInside];
+  [self.locationPicker setTitle:self.detailItem.location?: @" Pick Location" forState:UIControlStateNormal];
+  self.locationPicker.frame = CGRectMake(CGRectGetMinX(self.imageView.frame),
+                                         CGRectGetMaxY(self.imageView.frame) + 20,
+                                         self.imageView.frame.size.width,
+                                         30);
+ // self.locationPicker.backgroundColor = [UIColor blackColor]
+  [self.view addSubview:self.locationPicker];
+}
+
+- (void)pickLocation
+{
+  [self.navigationController pushViewController:[[LocationPickerController alloc] initWithDelegate:self
+                                                                                        searchText:self.detailItem.location]
+                                       animated:YES] ;
 }
 
 - (void)didReceiveMemoryWarning
@@ -118,7 +140,6 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex: (NSInteger)buttonIndex {
   if (actionSheet == _attachmentMenuSheet) {
-    NSLog(@"Button %ld", buttonIndex);
     switch (buttonIndex) {
       case 0:
         [self takePhoto];
@@ -178,6 +199,18 @@
   
   [self dismissViewControllerAnimated:YES completion:nil];
   
+}
+
+- (void)selectLocationCoordinate:(CLLocationCoordinate2D)coordinate
+{
+  self.detailItem.location = [NSString stringWithFormat:@" %f, %f", coordinate.latitude, coordinate.longitude];
+  [self.locationPicker setTitle:self.detailItem.location forState:UIControlStateNormal];
+}
+
+- (void)selectLocation:(NSString *)location coordinate:(CLLocationCoordinate2D)coordinate
+{
+  self.detailItem.location =  [NSString stringWithFormat:@" %@, %f, %f", location, coordinate.latitude, coordinate.longitude];
+  [self.locationPicker setTitle:self.detailItem.location forState:UIControlStateNormal];
 }
 
 @end

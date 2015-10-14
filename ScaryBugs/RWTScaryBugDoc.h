@@ -16,11 +16,14 @@
 @property (strong, readonly) UIImage *fullImage;
 
 @property (strong) NSString *title;
+
 @property (assign) int rating;
 
 @property (strong) NSString *imagePath;
 
-- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath;
+@property (strong) NSString *location; // allow the user to add a location
+
+- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath location:(NSString*)location;
 
 - (NSComparisonResult)compare:(RWTScaryBugDoc *)otherObject;
 

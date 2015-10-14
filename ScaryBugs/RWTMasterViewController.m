@@ -146,6 +146,7 @@ moveRowAtIndexPath:(NSIndexPath *)fromIndexPath
   
   cell.textLabel.text = bug.title;
   cell.imageView.image = bug.thumbImage;
+  cell.detailTextLabel.text = bug.location;
   return cell;
 }
 
@@ -178,7 +179,7 @@ moveRowAtIndexPath:(NSIndexPath *)fromIndexPath
 }
 
 - (void)addTapped:(id)sender {
-  RWTScaryBugDoc *newDoc = [[RWTScaryBugDoc alloc] initWithTitle:@"New Note" rating:0 imagePath:nil];
+  RWTScaryBugDoc *newDoc = [[RWTScaryBugDoc alloc] initWithTitle:@"New Note" rating:0 imagePath:nil location: nil];
   [_bugs addObject:newDoc];
   
   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:_bugs.count-1 inSection:0];

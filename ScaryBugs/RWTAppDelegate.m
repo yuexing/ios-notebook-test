@@ -65,12 +65,14 @@
       if(!dict) {
         break;
       } else {
-        NSString* title = [dict objectForKey: @"title" ], *imagePath = [dict objectForKey: @"imagePath" ];
-        int rating = [[dict objectForKey: @"rating" ] intValue];
-        NSLog(@"%@ %d %@", title, rating, imagePath);
+        NSString* title = [dict objectForKey: @"title" ],
+        *imagePath = [dict objectForKey: @"imagePath" ],
+        *location = [dict objectForKey: @"location" ];
+        NSLog(@"%@ %@", title, imagePath);
         [self.m_bugs addObject:[ [RWTScaryBugDoc alloc] initWithTitle: title
-                                                               rating: rating
-                                                            imagePath: imagePath]];
+                                                               rating: 0
+                                                            imagePath: imagePath
+                                                             location: location]];
       }
     }
   } else {
@@ -78,8 +80,9 @@
     for(NSString* key in dict)
     {
       [self.m_bugs addObject:[ [RWTScaryBugDoc alloc] initWithTitle: [dict objectForKey:key]
-                                                             rating: arc4random_uniform(5)
-                                                          imagePath: key]];
+                                                             rating: 0
+                                                          imagePath: key
+                                                           location: nil]];
     }
   }
   
@@ -98,11 +101,19 @@
   for(int i = 0; i < [self.m_bugs count]; ++i) {
     RWTScaryBugDoc *bug = self.m_bugs[i];
     
-    NSLog(@"%@ %d %@", bug.title, bug.rating, bug.imagePath);
+    NSLog(@"%@ %@", bug.title, bug.imagePath);
     
-    [defaults setObject: @{@"title": bug.title,
-                           @"rating": [NSNumber numberWithInt: bug.rating],
-                           @"imagePath": bug.imagePath}
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];;
+    if(bug.title) {
+      [dict setObject:bug.title forKey:@"title"];
+    }
+    if(bug.imagePath) {
+      [dict setObject:bug.imagePath forKey:@"imagePath"];
+    }
+    if(bug.location) {
+      [dict setObject:bug.location forKey:@"location"];
+    }
+    [defaults setObject: dict
                  forKey: [NSString stringWithFormat: @"yue_notebook%d", i]];
   }
   

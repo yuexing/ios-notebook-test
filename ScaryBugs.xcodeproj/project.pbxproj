@@ -12,6 +12,8 @@
 		3C19C54A1BCC31A50015ED56 /* yoga.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3C19C5461BCC31A50015ED56 /* yoga.jpg */; settings = {ASSET_TAGS = (); }; };
 		3C19C54C1BCC42590015ED56 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3C19C54B1BCC42590015ED56 /* Launch Screen.storyboard */; settings = {ASSET_TAGS = (); }; };
 		3C19C54E1BCC55F20015ED56 /* music.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3C19C54D1BCC55F20015ED56 /* music.jpg */; settings = {ASSET_TAGS = (); }; };
+		3C3CDD801BCDEF080085601C /* LocationPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C3CDD7F1BCDEF080085601C /* LocationPickerController.m */; settings = {ASSET_TAGS = (); }; };
+		3C3CDD841BCE362E0085601C /* DiscoveryCitiesListCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C3CDD831BCE362E0085601C /* DiscoveryCitiesListCell.mm */; settings = {ASSET_TAGS = (); }; };
 		EB544A0718A1876200E34B7E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0618A1876200E34B7E /* Foundation.framework */; };
 		EB544A0918A1876200E34B7E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0818A1876200E34B7E /* CoreGraphics.framework */; };
 		EB544A0B18A1876200E34B7E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0A18A1876200E34B7E /* UIKit.framework */; };
@@ -54,6 +56,12 @@
 		3C19C5461BCC31A50015ED56 /* yoga.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = yoga.jpg; sourceTree = "<group>"; };
 		3C19C54B1BCC42590015ED56 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		3C19C54D1BCC55F20015ED56 /* music.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = music.jpg; sourceTree = "<group>"; };
+		3C3CDD7F1BCDEF080085601C /* LocationPickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationPickerController.m; sourceTree = "<group>"; };
+		3C3CDD811BCDEF190085601C /* LocationPickerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocationPickerController.h; sourceTree = "<group>"; };
+		3C3CDD821BCE362E0085601C /* DiscoveryCitiesListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiscoveryCitiesListCell.h; sourceTree = "<group>"; };
+		3C3CDD831BCE362E0085601C /* DiscoveryCitiesListCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DiscoveryCitiesListCell.mm; sourceTree = "<group>"; };
+		3C3CDD851BCE364B0085601C /* Location.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
+		3C3CDD861BCE36C30085601C /* ios_macro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ios_macro.h; sourceTree = "<group>"; };
 		EB544A0318A1876200E34B7E /* Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notebook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB544A0618A1876200E34B7E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EB544A0818A1876200E34B7E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -194,6 +202,8 @@
 		EB544A3E18A18ACE00E34B7E /* GUI */ = {
 			isa = PBXGroup;
 			children = (
+				3C3CDD821BCE362E0085601C /* DiscoveryCitiesListCell.h */,
+				3C3CDD831BCE362E0085601C /* DiscoveryCitiesListCell.mm */,
 				EB544A1518A1876200E34B7E /* RWTAppDelegate.h */,
 				EB544A1618A1876200E34B7E /* RWTAppDelegate.m */,
 				EB544A1818A1876200E34B7E /* Main.storyboard */,
@@ -201,6 +211,10 @@
 				EB544A1C18A1876200E34B7E /* RWTMasterViewController.m */,
 				EB544A1E18A1876200E34B7E /* RWTDetailViewController.h */,
 				EB544A1F18A1876200E34B7E /* RWTDetailViewController.m */,
+				3C3CDD7F1BCDEF080085601C /* LocationPickerController.m */,
+				3C3CDD811BCDEF190085601C /* LocationPickerController.h */,
+				3C3CDD851BCE364B0085601C /* Location.h */,
+				3C3CDD861BCE36C30085601C /* ios_macro.h */,
 			);
 			name = GUI;
 			sourceTree = "<group>";
@@ -370,7 +384,9 @@
 				EB544A1718A1876200E34B7E /* RWTAppDelegate.m in Sources */,
 				EB544A4518A18E2E00E34B7E /* RWTScaryBugDoc.m in Sources */,
 				EBA1795318A41F3A00D84ADC /* SVProgressHUD.m in Sources */,
+				3C3CDD841BCE362E0085601C /* DiscoveryCitiesListCell.mm in Sources */,
 				EB544A1318A1876200E34B7E /* main.m in Sources */,
+				3C3CDD801BCDEF080085601C /* LocationPickerController.m in Sources */,
 				EB544A1D18A1876200E34B7E /* RWTMasterViewController.m in Sources */,
 				EB544A2018A1876200E34B7E /* RWTDetailViewController.m in Sources */,
 			);

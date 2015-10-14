@@ -33,11 +33,12 @@
 
 @synthesize thumbImage = _thumbImage, fullImage = _fullImage;
 
-- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath;
+- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath  location:(NSString*)location
 {
   if ((self = [super init])) {
     self.title = title;
     self.rating = rating;
+    self.location = location;
     [self setImagePath:imagePath];
   }
   return self;
