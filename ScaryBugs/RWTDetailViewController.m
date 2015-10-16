@@ -1,9 +1,5 @@
 //
 //  RWTDetailViewController.m
-//  ScaryBugs
-//
-//  Created by Jorge Jordán Arenas on 04/02/14.
-//
 //
 
 #import "RWTDetailViewController.h"
@@ -14,12 +10,25 @@
 #import "RWTAppDelegate.h"
 #import "LocationPickerController.h"
 
-@interface RWTDetailViewController () <LocationPickerControllerDelegate>
+#import <AVFoundation/AVFoundation.h>
+
+
+@interface RWTDetailViewController () <LocationPickerControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate> {
+  AVAudioRecorder *recorder;
+  AVAudioPlayer *player;
+  
+  NSString *curAudioPath;
+}
 - (void)configureView;
 
 @property (strong, nonatomic) UIActionSheet *attachmentMenuSheet;
 
 @property (strong, nonatomic) UIButton *locationPicker;
+
+@property (strong, nonatomic) UIButton *recordController;
+
+@property (strong, nonatomic) UIButton *playBtn;
+
 @end
 
 @implementation RWTDetailViewController
@@ -61,6 +70,72 @@
   return YES;
 }
 
+- (void)resetRecordBtn
+{
+  [self.recordController removeTarget:self
+                               action: @selector(stopRecord)
+                     forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.recordController addTarget:self
+                            action: @selector(recordAudio)
+                  forControlEvents:UIControlEventTouchUpInside];
+  [self.recordController setTitle:@" Record Audio"
+                         forState:UIControlStateNormal];
+}
+
+- (void)resetStopRecordBtn
+{
+  [self.recordController setTitle:@" Stop Recording" forState:UIControlStateNormal];
+  [self.recordController removeTarget:self
+                               action:@selector(recordAudio)
+                     forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.recordController addTarget:self
+                            action:@selector(stopRecord)
+                  forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)resetPlayBtn
+{
+  [self.playBtn removeTarget:self
+                      action: @selector(stopPlay)
+            forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.playBtn addTarget:self
+                    action: @selector(playAudio)
+          forControlEvents:UIControlEventTouchUpInside];
+  [self.playBtn setTitle:@" Play Audio"
+                 forState:UIControlStateNormal];
+}
+
+- (void)resetStopPlayBtn
+{
+  [self.playBtn removeTarget:self
+                      action:@selector(playAudio)
+            forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.playBtn addTarget:self
+                   action:@selector(stopPlay)
+         forControlEvents:UIControlEventTouchUpInside];
+  [self.playBtn setTitle:@" Stop Playing"
+                forState:UIControlStateNormal];
+}
+
+- (void)attachPlayBtn
+{
+  if(!self.playBtn) {
+    self.playBtn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+    
+    self.playBtn.frame = CGRectMake(CGRectGetMinX(self.recordController.frame),
+                                    CGRectGetMaxY(self.recordController.frame) + 0,
+                                    self.recordController.frame.size.width,
+                                    30);
+    
+    [self.view addSubview:self.playBtn];
+  }
+  [self resetPlayBtn];
+}
+
 - (void)viewDidLoad
 {
   [super viewDidLoad];
@@ -73,11 +148,23 @@
    forControlEvents:UIControlEventTouchUpInside];
   [self.locationPicker setTitle:self.detailItem.location?: @" Pick Location" forState:UIControlStateNormal];
   self.locationPicker.frame = CGRectMake(CGRectGetMinX(self.imageView.frame),
-                                         CGRectGetMaxY(self.imageView.frame) + 20,
+                                         CGRectGetMaxY(self.imageView.frame) + 10,
                                          self.imageView.frame.size.width,
                                          30);
- // self.locationPicker.backgroundColor = [UIColor blackColor]
   [self.view addSubview:self.locationPicker];
+  
+  
+  self.recordController = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.recordController.frame = CGRectMake(CGRectGetMinX(self.locationPicker.frame),
+                                         CGRectGetMaxY(self.locationPicker.frame) + 0,
+                                         self.locationPicker.frame.size.width,
+                                         30);
+  [self resetRecordBtn];
+  [self.view addSubview:self.recordController];
+  
+  if(self.detailItem.audioPath) {
+    [self attachPlayBtn];
+  }
 }
 
 - (void)pickLocation
@@ -148,6 +235,7 @@
       case 1:
         [self selectPhoto];
         break;
+        
       default:
         break;
     }
@@ -158,6 +246,72 @@
   [self attachmentActionSheet];
 }
 
+- (void) recordAudio
+{
+  // Set the audio file
+  curAudioPath = [NSString stringWithFormat:@"%d.m4a", (int)[[NSDate date] timeIntervalSince1970]];
+  NSURL *outputFileURL = [RWTAppDelegate getUrl:curAudioPath];
+  
+  // Setup audio session
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+  
+  // Define the recorder setting
+  NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
+  
+  [recordSetting setValue:[NSNumber numberWithInt:kAudioFormatMPEG4AAC] forKey:AVFormatIDKey];
+  [recordSetting setValue:[NSNumber numberWithFloat:44100.0] forKey:AVSampleRateKey];
+  [recordSetting setValue:[NSNumber numberWithInt: 2] forKey:AVNumberOfChannelsKey];
+  
+  // Initiate and prepare the recorder
+  NSLog(@"record to %@", outputFileURL);
+  recorder = [[AVAudioRecorder alloc] initWithURL:outputFileURL settings:recordSetting error:nil];
+  recorder.delegate = self;
+  recorder.meteringEnabled = YES;
+  [recorder prepareToRecord];
+  
+  // record now
+  [session setActive:YES error:nil];
+  
+  // Start recording
+  [recorder record];
+  
+  // no play!
+  [self.playBtn setEnabled:NO];
+
+  // replace btn
+  [self resetStopRecordBtn];
+}
+
+- (void) stopRecord
+{
+  [recorder stop];
+  
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  [audioSession setActive:NO error:nil];
+}
+
+- (void) playAudio {
+  NSURL *outputFileURL = [RWTAppDelegate getUrl: self.detailItem.audioPath];
+  NSLog(@"play %@", outputFileURL);
+  player = [[AVAudioPlayer alloc] initWithContentsOfURL:outputFileURL  error:nil];
+  [player setDelegate:self];
+  [player play];
+  
+  // no record
+  [self.recordController setEnabled:NO];
+  
+  // replace btn
+  [self resetStopPlayBtn];
+}
+
+- (void) stopPlay
+{
+  [player stop];
+  
+  [self resetPlayBtn];
+  [self.recordController setEnabled:YES];
+}
 #pragma mark UIImagePickerControllerDelegate
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -178,8 +332,7 @@
   dispatch_async(concurrentQueue, ^{
     NSData *imageData = UIImagePNGRepresentation(fullImage);
     
-    NSString *timestamp = [NSString stringWithFormat:@"%d", (int)[[NSDate date] timeIntervalSince1970]];
-    NSString *imagePath = [NSString stringWithFormat:@"%@.png", timestamp];
+    NSString *imagePath = [NSString stringWithFormat:@"%d.png", (int)[[NSDate date] timeIntervalSince1970]];
     NSString *pathToWrite = [RWTAppDelegate getFullPath: imagePath];
     
     if (![imageData writeToFile: pathToWrite atomically:NO]) {
@@ -211,6 +364,24 @@
 {
   self.detailItem.location =  [NSString stringWithFormat:@" %@, %f, %f", location, coordinate.latitude, coordinate.longitude];
   [self.locationPicker setTitle:self.detailItem.location forState:UIControlStateNormal];
+}
+
+#pragma mark - AVAudioRecorderDelegate
+
+- (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)avrecorder successfully:(BOOL)flag {
+  [self.detailItem setAudioPath:curAudioPath];
+  [self resetRecordBtn];
+  [self attachPlayBtn];
+  
+  [self.playBtn setEnabled:YES];
+}
+
+#pragma mark - AVAudioPlayerDelegate
+
+- (void) audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag {
+  
+  [self.recordController setEnabled:YES];
+  
 }
 
 @end

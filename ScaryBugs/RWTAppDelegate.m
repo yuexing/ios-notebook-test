@@ -34,6 +34,15 @@
   return documentsDirectory;
 }
 
++ (NSURL*) getUrl: (NSString*)path
+{
+  NSArray *pathComponents = [NSArray arrayWithObjects:
+                             [RWTAppDelegate appDirectory],
+                             path,
+                             nil];
+  return [NSURL fileURLWithPathComponents:pathComponents];
+}
+
 + (NSString*) getFullPath: (NSString*) path
 {
   if([[self inapp_images] objectForKey: path] != nil) {
@@ -46,6 +55,16 @@
 + (NSDictionary*) inapp_images
 {
   return @{@"yoga.jpg" : @"Yoga", @"book.jpg" : @"Reading", @"teddy.jpg" : @"Doggy", @"music.jpg": @"Music"};
+}
+
++ (void)removeFile:(NSString *)fileName
+{
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSString *filePath = [[RWTAppDelegate appDirectory] stringByAppendingPathComponent:fileName];
+  NSError *error;
+  if(![fileManager removeItemAtPath:filePath error:&error]) {
+    NSLog(@"Could not delete file %@:%@ ", filePath, [error localizedDescription]);
+  }
 }
 
 + (RWTAppDelegate*) shared_instance
@@ -67,11 +86,13 @@
       } else {
         NSString* title = [dict objectForKey: @"title" ],
         *imagePath = [dict objectForKey: @"imagePath" ],
+        *audioPath = [dict objectForKey:@"audioPath"],
         *location = [dict objectForKey: @"location" ];
         NSLog(@"%@ %@", title, imagePath);
         [self.m_bugs addObject:[ [RWTScaryBugDoc alloc] initWithTitle: title
                                                                rating: 0
                                                             imagePath: imagePath
+                                                            audioPath: audioPath
                                                              location: location]];
       }
     }
@@ -82,6 +103,7 @@
       [self.m_bugs addObject:[ [RWTScaryBugDoc alloc] initWithTitle: [dict objectForKey:key]
                                                              rating: 0
                                                           imagePath: key
+                                                          audioPath:nil
                                                            location: nil]];
     }
   }
@@ -110,14 +132,18 @@
     if(bug.imagePath) {
       [dict setObject:bug.imagePath forKey:@"imagePath"];
     }
+    if(bug.audioPath) {
+      [dict setObject:bug.audioPath forKey:@"audioPath"];
+    }
     if(bug.location) {
       [dict setObject:bug.location forKey:@"location"];
     }
+    
     [defaults setObject: dict
                  forKey: [NSString stringWithFormat: @"yue_notebook%d", i]];
   }
   
-  for(int i = [self.m_bugs count]; ; ++i) {
+  for(int i = (int)[self.m_bugs count]; ; ++i) {
     NSString* key = [NSString stringWithFormat:@"yue_notebook%d", i];
     if(![defaults dictionaryForKey:key]) {
       break;

@@ -33,19 +33,33 @@
 
 @synthesize thumbImage = _thumbImage, fullImage = _fullImage;
 
-- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath  location:(NSString*)location
+- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath  audioPath:(NSString*)audioPath location:(NSString*)location
 {
   if ((self = [super init])) {
     self.title = title;
     self.rating = rating;
     self.location = location;
+    [self setAudioPath:audioPath];
     [self setImagePath:imagePath];
   }
   return self;
 }
 
+- (void)setAudioPath:(NSString *)audioPath
+{
+  if(_audioPath) {
+    [RWTAppDelegate removeFile:_audioPath];
+  }
+  
+  _audioPath = audioPath;
+}
+
 - (void)setImagePath:(NSString *)imagePath
 {
+  if(_imagePath) {
+    [RWTAppDelegate removeFile:_imagePath];
+  }
+  
   _imagePath = imagePath;
   _thumbImage = _fullImage = nil;
   

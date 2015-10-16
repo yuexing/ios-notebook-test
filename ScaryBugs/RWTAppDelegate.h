@@ -12,7 +12,11 @@
 
 + (NSString*) appDirectory;
 
++ (void)removeFile:(NSString *)fileName;
+
 + (NSString*) getFullPath: (NSString*) path;
+
++ (NSURL*) getUrl: (NSString*)path;
 
 + (RWTAppDelegate*) shared_instance;
 

@@ -19,11 +19,13 @@
 
 @property (assign) int rating;
 
-@property (strong) NSString *imagePath;
+@property (strong, nonatomic) NSString *imagePath;
 
 @property (strong) NSString *location; // allow the user to add a location
 
-- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath location:(NSString*)location;
+@property (strong, nonatomic) NSString *audioPath;
+
+- (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath audioPath:(NSString*)audioPath location:(NSString*)location;
 
 - (NSComparisonResult)compare:(RWTScaryBugDoc *)otherObject;
 
