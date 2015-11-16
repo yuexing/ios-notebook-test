@@ -1,10 +1,6 @@
 //
 //  UIImageExtras.m
 //  ScaryBugs
-//
-//  Created by Ray Wenderlich on 8/23/10.
-//  Copyright 2010 Ray Wenderlich. All rights reserved.
-//
 
 #import "RWTUIImageExtras.h"
 
@@ -63,6 +59,20 @@
     //pop the context to get back to the default
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+- (UIImage *) makeThumbnailOfSize:(CGSize)size
+{
+  UIGraphicsBeginImageContextWithOptions(size, NO, UIScreen.mainScreen.scale);
+  // draw scaled image into thumbnail context
+  [self drawInRect:CGRectMake(0, 0, size.width, size.height)];
+  UIImage *newThumbnail = UIGraphicsGetImageFromCurrentImageContext();
+  // pop the context
+  UIGraphicsEndImageContext();
+  if(newThumbnail == nil) {
+    NSLog(@"could not scale image");
+  }
+  return newThumbnail;
 }
 
 @end

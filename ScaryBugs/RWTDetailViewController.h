@@ -11,9 +11,8 @@
 
 @class RWTScaryBugDoc;
 
-@interface RWTDetailViewController : UIViewController <UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIActionSheetDelegate>
+@interface RWTDetailViewController : UIViewController <UITextFieldDelegate, UINavigationControllerDelegate>
 
-@property (strong, nonatomic) RWTScaryBugDoc *detailItem;
 @property (strong, nonatomic) IBOutlet UILabel *detailDescriptionLabel;
 
 @property (weak, nonatomic) IBOutlet UITextField *titleField;
@@ -23,5 +22,7 @@
 
 - (IBAction)addPictureTapped:(id)sender;
 - (IBAction)titleFieldTextChanged:(id)sender;
+
+- (BOOL)setItemIndex:(NSInteger)index;
 
 @end

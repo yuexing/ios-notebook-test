@@ -9,11 +9,12 @@
 
 #import "RWTAppDelegate.h"
 #import "LocationPickerController.h"
+#import "ReminderViewController.h"
 
 #import <AVFoundation/AVFoundation.h>
 
 
-@interface RWTDetailViewController () <LocationPickerControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate> {
+@interface RWTDetailViewController () <LocationPickerControllerDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate, ReminderViewControllerDelegate> {
   AVAudioRecorder *recorder;
   AVAudioPlayer *player;
   
@@ -21,37 +22,135 @@
 }
 - (void)configureView;
 
-@property (strong, nonatomic) UIActionSheet *attachmentMenuSheet;
+@property (strong, nonatomic) UIActionSheet *attachmentMenuSheetForPic;
+@property (strong, nonatomic) UIActionSheet *attachmentMenuSheetForMore;
 
-@property (strong, nonatomic) UIButton *locationPicker;
+@property (weak, nonatomic) UIButton *locationPicker;
 
-@property (strong, nonatomic) UIButton *recordController;
+@property (weak, nonatomic) UIButton *recordController;
 
-@property (strong, nonatomic) UIButton *playBtn;
+@property (weak, nonatomic) UIButton *playBtn;
+
+@property (weak, nonatomic) UIButton *addMoreBtn;
+
+@property (weak, nonatomic) UIButton *remindBtn;
+
+@property (weak, nonatomic) RWTScaryBugDoc *detailItem;
+
+@property NSMutableArray* btns;
 
 @end
 
-@implementation RWTDetailViewController
+@implementation RWTDetailViewController {
+  NSInteger m_index;
+}
 
 @synthesize picker = _picker;
 
 #pragma mark - Managing the detail item
 
-- (void)setDetailItem:(id)newDetailItem
+- (BOOL)setItemIndex:(NSInteger)index
 {
+  if(index >= [[RWTAppDelegate shared_instance].m_bugs count] ||
+     index < 0) {
+    return NO;
+  }
+  
+  m_index = index;
+  
+  RWTScaryBugDoc* newDetailItem = [RWTAppDelegate shared_instance].m_bugs[index];
+  
   if (_detailItem != newDetailItem) {
     _detailItem = newDetailItem;
-    
-    // Update the view.
-    [self configureView];
   }
+  
+  return YES;
+}
+
+- (UIView*) getLastView
+{
+  if([self.btns count]) {
+    return [self.btns lastObject];
+  }
+  return self.imageView;
 }
 
 - (void)configureView
 {
-  if (self.detailItem) {
-    self.titleField.text = self.detailItem.title;
-    self.imageView.image = [self.detailItem fullImage];
+  if (!self.detailItem) {
+    return;
+  }
+  self.titleField.text = self.detailItem.title;
+  self.imageView.image = [self.detailItem fullImage];
+  
+  [self removeAllBtns];
+  
+  if(self.detailItem.location) {
+    [self attchLocationPickerFollowingView: [self getLastView]];
+  }
+  
+  if(self.detailItem.audioPath) {
+    [self attachPlayBtnFollowingView:[self getLastView]];
+  }
+  
+  if(self.detailItem.reminder) {
+    [self attachRemindFollowingView:[self getLastView]];
+  }
+  
+  [self attachAddMoreFollowingView: [self getLastView]];
+}
+
+-(void)attachActionSheetForMore {
+  self.attachmentMenuSheetForMore = [[UIActionSheet alloc] initWithTitle:nil
+                                                         delegate:self
+                                                cancelButtonTitle:@"Cancel"
+                                           destructiveButtonTitle:nil
+                                                otherButtonTitles:@"Pick Location", @"Record Audio", @"Add Reminder", nil];
+  
+  [self.attachmentMenuSheetForMore showInView: self.view];
+}
+
+
+-(void)attachmentActionSheetForPic {
+  
+  self.attachmentMenuSheetForPic = [[UIActionSheet alloc] initWithTitle:nil
+                                                               delegate:self
+                                                      cancelButtonTitle:@"Cancel"
+                                                 destructiveButtonTitle:nil
+                                                      otherButtonTitles:@"Take Photo", @"Pick Photo", nil];
+  
+  [self.attachmentMenuSheetForPic showInView: self.view];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex: (NSInteger)buttonIndex {
+  if (actionSheet == _attachmentMenuSheetForPic) {
+    switch (buttonIndex) {
+      case 0:
+        [self takePhoto];
+        break;
+        
+      case 1:
+        [self selectPhoto];
+        break;
+        
+      default:
+        break;
+    }
+  } else if(actionSheet == _attachmentMenuSheetForMore) {
+    switch (buttonIndex) {
+      case 0:
+        [self pickLocation];
+        break;
+      case 1: // record
+        [self attachRecordFollowingView: self.getLastView];
+        break;
+      case 2: // reminder
+        [self addReminder];
+        break;
+      default:
+        break;
+    }
+    
   }
 }
 
@@ -63,8 +162,6 @@
   self.detailItem.title = self.titleField.text;
 }
 
-#pragma mark UITextFieldDelegate
-
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
   [textField resignFirstResponder];
   return YES;
@@ -72,12 +169,12 @@
 
 - (void)resetRecordBtn
 {
-  [self.recordController removeTarget:self
-                               action: @selector(stopRecord)
+  [self.recordController removeTarget: nil
+                               action: nil
                      forControlEvents:UIControlEventTouchUpInside];
   
   [self.recordController addTarget:self
-                            action: @selector(recordAudio)
+                            action:@selector(recordAudio)
                   forControlEvents:UIControlEventTouchUpInside];
   [self.recordController setTitle:@" Record Audio"
                          forState:UIControlStateNormal];
@@ -86,8 +183,8 @@
 - (void)resetStopRecordBtn
 {
   [self.recordController setTitle:@" Stop Recording" forState:UIControlStateNormal];
-  [self.recordController removeTarget:self
-                               action:@selector(recordAudio)
+  [self.recordController removeTarget: nil
+                               action: nil
                      forControlEvents:UIControlEventTouchUpInside];
   
   [self.recordController addTarget:self
@@ -97,21 +194,21 @@
 
 - (void)resetPlayBtn
 {
-  [self.playBtn removeTarget:self
-                      action: @selector(stopPlay)
+  [self.playBtn removeTarget: nil
+                      action: nil
             forControlEvents:UIControlEventTouchUpInside];
   
-  [self.playBtn addTarget:self
-                    action: @selector(playAudio)
-          forControlEvents:UIControlEventTouchUpInside];
+  [self.playBtn addTarget: self
+                   action: @selector(playAudio)
+         forControlEvents:UIControlEventTouchUpInside];
   [self.playBtn setTitle:@" Play Audio"
-                 forState:UIControlStateNormal];
+                forState:UIControlStateNormal];
 }
 
 - (void)resetStopPlayBtn
 {
-  [self.playBtn removeTarget:self
-                      action:@selector(playAudio)
+  [self.playBtn removeTarget:nil
+                      action:nil
             forControlEvents:UIControlEventTouchUpInside];
   
   [self.playBtn addTarget:self
@@ -121,50 +218,171 @@
                 forState:UIControlStateNormal];
 }
 
-- (void)attachPlayBtn
+- (void)removeAllBtns
 {
-  if(!self.playBtn) {
-    self.playBtn = [UIButton buttonWithType:UIButtonTypeInfoLight];
-    
-    self.playBtn.frame = CGRectMake(CGRectGetMinX(self.recordController.frame),
-                                    CGRectGetMaxY(self.recordController.frame) + 0,
-                                    self.recordController.frame.size.width,
-                                    30);
-    
-    [self.view addSubview:self.playBtn];
+  if(self.btns) {
+    for(id btn in self.btns) {
+      [btn removeFromSuperview];
+    }
+    self.btns = nil;
   }
+  self.btns = [[NSMutableArray alloc]init];
+}
+
+- (void)attchLocationPickerFollowingView: (UIView*) view
+{
+  UIButton* btn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.locationPicker = btn;
+  [self.locationPicker addTarget:self
+                          action:@selector(pickLocation)
+                forControlEvents:UIControlEventTouchUpInside];
+  self.locationPicker.frame = CGRectMake(CGRectGetMinX(view.frame),
+                                         CGRectGetMaxY(view.frame) + 10,
+                                         view.frame.size.width,
+                                         30);
+  [self.view addSubview:self.locationPicker];
+  [self.locationPicker setTitle:self.detailItem.location?:@"Pick Location" forState:UIControlStateNormal];
+  
+  [self.btns addObject:btn];
+}
+
+- (void)attachRecordFollowingView: (UIView*) view
+{
+  UIButton* btn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.recordController = btn;
+  self.recordController.frame = CGRectMake(CGRectGetMinX(view.frame),
+                                           CGRectGetMaxY(view.frame) + 0,
+                                           view.frame.size.width,
+                                           30);
+  [self.view addSubview:self.recordController];
+  [self resetRecordBtn];
+  
+  [self.btns addObject:btn];
+}
+
+- (void)attachPlayBtnFollowingView: (UIView*) view
+{
+  UIButton *btn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.playBtn = btn;
+  
+  self.playBtn.frame = CGRectMake(CGRectGetMinX(view.frame),
+                                  CGRectGetMaxY(view.frame) + 0,
+                                  view.frame.size.width,
+                                  30);
+  
+  [self.view addSubview:self.playBtn];
   [self resetPlayBtn];
+  
+  [self.btns addObject:btn];
+}
+
+- (void)attachRemindFollowingView: (UIView*) view
+{
+  UIButton *btn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.remindBtn = btn;
+  
+  self.remindBtn.frame = CGRectMake(CGRectGetMinX(view.frame),
+                                    CGRectGetMaxY(view.frame) + 0,
+                                    view.frame.size.width,
+                                    30);
+  
+  
+
+  [self.remindBtn setTitle:self.detailItem.reminder.date
+                  forState:UIControlStateNormal];
+  [self.remindBtn addTarget:self
+                     action:@selector(addReminder)
+           forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.view addSubview:self.remindBtn];
+  [self.btns addObject:btn];
+}
+
+- (void)attachAddMoreFollowingView: (UIView*) view
+{
+  UIButton* btn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+  self.addMoreBtn = btn;
+  self.addMoreBtn.frame = CGRectMake(CGRectGetMinX(view.frame),
+                                     CGRectGetMaxY(view.frame) + 0,
+                                     view.frame.size.width,
+                                     30);
+  
+  [self.view addSubview:self.addMoreBtn];
+  [self.addMoreBtn setTitle:@"Add More" forState:UIControlStateNormal];
+  [self.addMoreBtn addTarget: self
+                   action: @selector(attachActionSheetForMore)
+         forControlEvents:UIControlEventTouchUpInside];
+  
+  [self.btns addObject: btn];
 }
 
 - (void)viewDidLoad
 {
   [super viewDidLoad];
-  // Do any additional setup after loading the view, typically from a nib.
-  [self configureView];
   
-  self.locationPicker = [UIButton buttonWithType:UIButtonTypeInfoLight];
-  [self.locationPicker addTarget:self
-             action:@selector(pickLocation)
-   forControlEvents:UIControlEventTouchUpInside];
-  [self.locationPicker setTitle:self.detailItem.location?: @" Pick Location" forState:UIControlStateNormal];
-  self.locationPicker.frame = CGRectMake(CGRectGetMinX(self.imageView.frame),
-                                         CGRectGetMaxY(self.imageView.frame) + 10,
-                                         self.imageView.frame.size.width,
-                                         30);
-  [self.view addSubview:self.locationPicker];
-  
-  
-  self.recordController = [UIButton buttonWithType:UIButtonTypeInfoLight];
-  self.recordController.frame = CGRectMake(CGRectGetMinX(self.locationPicker.frame),
-                                         CGRectGetMaxY(self.locationPicker.frame) + 0,
-                                         self.locationPicker.frame.size.width,
-                                         30);
-  [self resetRecordBtn];
-  [self.view addSubview:self.recordController];
-  
-  if(self.detailItem.audioPath) {
-    [self attachPlayBtn];
+  // disable back gesture
+  if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+    self.navigationController.interactivePopGestureRecognizer.enabled = NO;
   }
+  
+  // Setup audio session
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+  
+  // Setup swipe gesture
+  UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(slideToRightWithGestureRecognizer:)];
+  swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
+  
+  UISwipeGestureRecognizer *swipeLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(slideToLeftWithGestureRecognizer:)];
+  swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
+  
+  [self.view addGestureRecognizer: swipeRight];
+  [self.view addGestureRecognizer: swipeLeft];
+}
+
+- (void) viewWillAppear:(BOOL)animated
+{
+  [super viewWillAppear:animated];
+  [self configureView];
+}
+
+-(void)alertNoMore
+{
+  UIAlertView *myAlertView = [[UIAlertView alloc] initWithTitle:@"Info"
+                                                        message:@"Nothing More :<"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles: nil];
+  
+  [myAlertView show];
+}
+
+-(void)slideToRightWithGestureRecognizer:(UISwipeGestureRecognizer *)gestureRecognizer
+{
+  NSLog(@"%s", __FUNCTION__);
+  if([self setItemIndex: m_index - 1]) {
+    [self configureView];
+  } else {
+    [self alertNoMore];
+  }
+}
+
+-(void)slideToLeftWithGestureRecognizer:(UISwipeGestureRecognizer *)gestureRecognizer
+{
+  NSLog(@"%s", __FUNCTION__);
+  if([self setItemIndex: m_index + 1]) {
+    [self configureView];
+  } else {
+    [self alertNoMore];
+  }
+}
+
+- (void)addReminder
+{
+  [self.navigationController pushViewController:[[ReminderViewController alloc] initWithDelegate:self
+                                                                                        withText:self.detailItem.title]
+                                       animated:YES] ;
+
 }
 
 - (void)pickLocation
@@ -214,47 +432,15 @@
   [self presentViewController:_picker animated:YES completion:NULL];
 }
 
--(void)attachmentActionSheet {
-  
-  self.attachmentMenuSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                     delegate:self
-                                            cancelButtonTitle:@"Cancel"
-                                       destructiveButtonTitle:nil
-                                            otherButtonTitles:@"Take Photo", @"Pick Photo", nil];
-  
-  [self.attachmentMenuSheet showInView: self.view];
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex: (NSInteger)buttonIndex {
-  if (actionSheet == _attachmentMenuSheet) {
-    switch (buttonIndex) {
-      case 0:
-        [self takePhoto];
-        break;
-        
-      case 1:
-        [self selectPhoto];
-        break;
-        
-      default:
-        break;
-    }
-  }
-}
-
 - (IBAction)addPictureTapped:(id)sender {
-  [self attachmentActionSheet];
+  [self attachmentActionSheetForPic];
 }
 
 - (void) recordAudio
 {
   // Set the audio file
   curAudioPath = [NSString stringWithFormat:@"%d.m4a", (int)[[NSDate date] timeIntervalSince1970]];
-  NSURL *outputFileURL = [RWTAppDelegate getUrl:curAudioPath];
-  
-  // Setup audio session
-  AVAudioSession *session = [AVAudioSession sharedInstance];
-  [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+  NSURL *outputFileURL = [RWTAppDelegate getFullPath:curAudioPath];
   
   // Define the recorder setting
   NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
@@ -271,6 +457,7 @@
   [recorder prepareToRecord];
   
   // record now
+  AVAudioSession *session = [AVAudioSession sharedInstance];
   [session setActive:YES error:nil];
   
   // Start recording
@@ -292,7 +479,7 @@
 }
 
 - (void) playAudio {
-  NSURL *outputFileURL = [RWTAppDelegate getUrl: self.detailItem.audioPath];
+  NSURL *outputFileURL = [RWTAppDelegate getFullPath: self.detailItem.audioPath];
   NSLog(@"play %@", outputFileURL);
   player = [[AVAudioPlayer alloc] initWithContentsOfURL:outputFileURL  error:nil];
   [player setDelegate:self];
@@ -320,7 +507,7 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
   
-  UIImage *fullImage = (UIImage *) [info objectForKey:UIImagePickerControllerOriginalImage];
+  UIImage *fullImage = (UIImage *) [info objectForKey:UIImagePickerControllerEditedImage];
   
   // 1) Show status
   [SVProgressHUD showWithStatus:@"Resizing image..."];
@@ -333,7 +520,7 @@
     NSData *imageData = UIImagePNGRepresentation(fullImage);
     
     NSString *imagePath = [NSString stringWithFormat:@"%d.png", (int)[[NSDate date] timeIntervalSince1970]];
-    NSString *pathToWrite = [RWTAppDelegate getFullPath: imagePath];
+    NSString *pathToWrite = [RWTAppDelegate getFullPathForImage: imagePath];
     
     if (![imageData writeToFile: pathToWrite atomically:NO]) {
       NSLog((@"Failed to cache image data to disk"));
@@ -357,31 +544,37 @@
 - (void)selectLocationCoordinate:(CLLocationCoordinate2D)coordinate
 {
   self.detailItem.location = [NSString stringWithFormat:@" %f, %f", coordinate.latitude, coordinate.longitude];
-  [self.locationPicker setTitle:self.detailItem.location forState:UIControlStateNormal];
+  // willappear
 }
 
 - (void)selectLocation:(NSString *)location coordinate:(CLLocationCoordinate2D)coordinate
 {
   self.detailItem.location =  [NSString stringWithFormat:@" %@, %f, %f", location, coordinate.latitude, coordinate.longitude];
-  [self.locationPicker setTitle:self.detailItem.location forState:UIControlStateNormal];
+  // willappear
+}
+
+- (void)setReminderDate:(NSDate*)date repeatInterval:(NSCalendarUnit)repeatInterval
+{
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  [formatter setDateFormat:@"yyyy/MM/dd hh:mm:ss"];
+  [formatter setTimeZone:[NSTimeZone localTimeZone]];
+  
+  self.detailItem.reminder = [[ReminderData alloc] initWithDate: [formatter stringFromDate:date]];
+  // willappear
 }
 
 #pragma mark - AVAudioRecorderDelegate
 
 - (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)avrecorder successfully:(BOOL)flag {
   [self.detailItem setAudioPath:curAudioPath];
-  [self resetRecordBtn];
-  [self attachPlayBtn];
   
-  [self.playBtn setEnabled:YES];
+  [self configureView];
 }
 
 #pragma mark - AVAudioPlayerDelegate
 
 - (void) audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag {
-  
-  [self.recordController setEnabled:YES];
-  
+  [self resetPlayBtn];
 }
 
 @end

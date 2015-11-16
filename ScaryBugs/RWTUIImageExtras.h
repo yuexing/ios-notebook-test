@@ -12,5 +12,7 @@
 
 - (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize;
 
+- (UIImage *) makeThumbnailOfSize:(CGSize)size;
+
 @end
 

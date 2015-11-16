@@ -14,6 +14,9 @@
 		3C19C54E1BCC55F20015ED56 /* music.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3C19C54D1BCC55F20015ED56 /* music.jpg */; settings = {ASSET_TAGS = (); }; };
 		3C3CDD801BCDEF080085601C /* LocationPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C3CDD7F1BCDEF080085601C /* LocationPickerController.m */; settings = {ASSET_TAGS = (); }; };
 		3C3CDD841BCE362E0085601C /* DiscoveryCitiesListCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C3CDD831BCE362E0085601C /* DiscoveryCitiesListCell.mm */; settings = {ASSET_TAGS = (); }; };
+		3C6A20FA1BD07AC800A4BE83 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C6A20F91BD07AC800A4BE83 /* AVFoundation.framework */; };
+		3C93784D1BF2DBE10039E7A5 /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C93784C1BF2DBE10039E7A5 /* PushKit.framework */; };
+		3CF841ED1BEAEF0E00A102E9 /* ReminderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CF841EC1BEAEF0E00A102E9 /* ReminderViewController.m */; settings = {ASSET_TAGS = (); }; };
 		EB544A0718A1876200E34B7E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0618A1876200E34B7E /* Foundation.framework */; };
 		EB544A0918A1876200E34B7E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0818A1876200E34B7E /* CoreGraphics.framework */; };
 		EB544A0B18A1876200E34B7E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB544A0A18A1876200E34B7E /* UIKit.framework */; };
@@ -62,6 +65,10 @@
 		3C3CDD831BCE362E0085601C /* DiscoveryCitiesListCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DiscoveryCitiesListCell.mm; sourceTree = "<group>"; };
 		3C3CDD851BCE364B0085601C /* Location.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
 		3C3CDD861BCE36C30085601C /* ios_macro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ios_macro.h; sourceTree = "<group>"; };
+		3C6A20F91BD07AC800A4BE83 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3C93784C1BF2DBE10039E7A5 /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
+		3CF841EB1BEAEEE500A102E9 /* ReminderViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReminderViewController.h; sourceTree = "<group>"; };
+		3CF841EC1BEAEF0E00A102E9 /* ReminderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReminderViewController.m; sourceTree = "<group>"; };
 		EB544A0318A1876200E34B7E /* Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notebook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB544A0618A1876200E34B7E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EB544A0818A1876200E34B7E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -103,6 +110,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C93784D1BF2DBE10039E7A5 /* PushKit.framework in Frameworks */,
+				3C6A20FA1BD07AC800A4BE83 /* AVFoundation.framework in Frameworks */,
 				EBA1795518A41F6000D84ADC /* QuartzCore.framework in Frameworks */,
 				EB544A0918A1876200E34B7E /* CoreGraphics.framework in Frameworks */,
 				EB544A0B18A1876200E34B7E /* UIKit.framework in Frameworks */,
@@ -146,6 +155,8 @@
 		EB544A0518A1876200E34B7E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3C93784C1BF2DBE10039E7A5 /* PushKit.framework */,
+				3C6A20F91BD07AC800A4BE83 /* AVFoundation.framework */,
 				EBA1795418A41F6000D84ADC /* QuartzCore.framework */,
 				EB544A0618A1876200E34B7E /* Foundation.framework */,
 				EB544A0818A1876200E34B7E /* CoreGraphics.framework */,
@@ -215,6 +226,8 @@
 				3C3CDD811BCDEF190085601C /* LocationPickerController.h */,
 				3C3CDD851BCE364B0085601C /* Location.h */,
 				3C3CDD861BCE36C30085601C /* ios_macro.h */,
+				3CF841EB1BEAEEE500A102E9 /* ReminderViewController.h */,
+				3CF841EC1BEAEF0E00A102E9 /* ReminderViewController.m */,
 			);
 			name = GUI;
 			sourceTree = "<group>";
@@ -318,7 +331,7 @@
 				LastUpgradeCheck = 0500;
 				TargetAttributes = {
 					EB544A0218A1876200E34B7E = {
-						DevelopmentTeam = BW9TTXMMTE;
+						DevelopmentTeam = R22739977C;
 					};
 					EB544A2618A1876300E34B7E = {
 						TestTargetID = EB544A0218A1876200E34B7E;
@@ -384,6 +397,7 @@
 				EB544A1718A1876200E34B7E /* RWTAppDelegate.m in Sources */,
 				EB544A4518A18E2E00E34B7E /* RWTScaryBugDoc.m in Sources */,
 				EBA1795318A41F3A00D84ADC /* SVProgressHUD.m in Sources */,
+				3CF841ED1BEAEF0E00A102E9 /* ReminderViewController.m in Sources */,
 				3C3CDD841BCE362E0085601C /* DiscoveryCitiesListCell.mm in Sources */,
 				EB544A1318A1876200E34B7E /* main.m in Sources */,
 				3C3CDD801BCDEF080085601C /* LocationPickerController.m in Sources */,
@@ -515,14 +529,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Tiantian Xu (4VL952S292)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScaryBugs/ScaryBugs-Prefix.pch";
 				INFOPLIST_FILE = "ScaryBugs/ScaryBugs-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yxing.notebook1;
+				PRODUCT_BUNDLE_IDENTIFIER = tiantianxu.yxing.notebook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cab8aee2-d1f9-474e-aa3c-e2943cf76dfb";
+				PROVISIONING_PROFILE = "25c40b3a-89b0-4a77-8adf-ffc1635b686c";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -532,14 +546,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: dun liu (BW9TTXMMTE)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: dun liu (BW9TTXMMTE)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScaryBugs/ScaryBugs-Prefix.pch";
 				INFOPLIST_FILE = "ScaryBugs/ScaryBugs-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yxing.notebook1;
+				PRODUCT_BUNDLE_IDENTIFIER = tiantianxu.yxing.notebook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cab8aee2-d1f9-474e-aa3c-e2943cf76dfb";
+				PROVISIONING_PROFILE = "25c40b3a-89b0-4a77-8adf-ffc1635b686c";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

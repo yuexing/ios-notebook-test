@@ -8,7 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class RWTScaryBugData;
+@interface ReminderData : NSObject
+
+@property (strong, nonatomic) NSString* date;
+
+-(id) initWithDate: (NSString*)date;
+
+@end
+
 
 @interface RWTScaryBugDoc : NSObject
 
@@ -24,6 +31,8 @@
 @property (strong) NSString *location; // allow the user to add a location
 
 @property (strong, nonatomic) NSString *audioPath;
+
+@property (strong, nonatomic) ReminderData* reminder;
 
 - (id)initWithTitle:(NSString*)title rating:(int)rating imagePath:(NSString*)imagePath audioPath:(NSString*)audioPath location:(NSString*)location;
 

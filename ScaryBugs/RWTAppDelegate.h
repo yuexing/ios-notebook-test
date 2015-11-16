@@ -14,12 +14,14 @@
 
 + (void)removeFile:(NSString *)fileName;
 
-+ (NSString*) getFullPath: (NSString*) path;
++ (NSString*) getFullPathForImage: (NSString*) path;
 
-+ (NSURL*) getUrl: (NSString*)path;
++ (NSURL*) getFullPath: (NSString*)path;
 
 + (RWTAppDelegate*) shared_instance;
 
 @property (strong, nonatomic) UIWindow *window;
+
+@property NSMutableArray* m_bugs;
 
 @end

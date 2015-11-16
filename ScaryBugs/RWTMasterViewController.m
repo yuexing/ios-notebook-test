@@ -174,8 +174,7 @@ moveRowAtIndexPath:(NSIndexPath *)fromIndexPath
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
   RWTDetailViewController *detailController = segue.destinationViewController;
-  RWTScaryBugDoc *bug = [self.bugs objectAtIndex:self.tableView.indexPathForSelectedRow.row];
-  detailController.detailItem = bug;
+  [detailController setItemIndex: self.tableView.indexPathForSelectedRow.row];
 }
 
 - (void)addTapped:(id)sender {

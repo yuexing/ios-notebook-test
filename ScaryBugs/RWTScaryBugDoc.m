@@ -8,25 +8,18 @@
 
 #import "RWTScaryBugDoc.h"
 #import "RWTAppDelegate.h"
+#import "RWTUIImageExtras.h"
 
-@interface UIImage (PhoenixMaster)
-- (UIImage *) makeThumbnailOfSize:(CGSize)size;
-@end
+@implementation ReminderData
 
-@implementation UIImage (PhoenixMaster)
-- (UIImage *) makeThumbnailOfSize:(CGSize)size
+-(id) initWithDate: (NSString*)date
 {
-  UIGraphicsBeginImageContextWithOptions(size, NO, UIScreen.mainScreen.scale);
-  // draw scaled image into thumbnail context
-  [self drawInRect:CGRectMake(0, 0, size.width, size.height)];
-  UIImage *newThumbnail = UIGraphicsGetImageFromCurrentImageContext();
-  // pop the context
-  UIGraphicsEndImageContext();
-  if(newThumbnail == nil) {
-    NSLog(@"could not scale image");
+  if(self = [super init]) {
+    self.date = date;
   }
-  return newThumbnail;
+  return self;
 }
+
 @end
 
 @implementation RWTScaryBugDoc
@@ -64,7 +57,7 @@
   _thumbImage = _fullImage = nil;
   
   if(imagePath != nil) {
-    _fullImage = [UIImage imageNamed:[RWTAppDelegate getFullPath:  _imagePath]];
+    _fullImage = [UIImage imageNamed:[RWTAppDelegate getFullPathForImage:  _imagePath]];
     _thumbImage = [_fullImage makeThumbnailOfSize:CGSizeMake(70,70)];
   }
 }

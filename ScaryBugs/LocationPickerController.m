@@ -46,7 +46,7 @@
 
 - (id)initWithDelegate:(id<LocationPickerControllerDelegate>)d searchText: (NSString*) searchText
 {
-  self = [super initWithNibName:nil bundle:nil];
+  self = [super init];
   if (self) {
     self.delegate = d;
     self.title = @"Set Location";
